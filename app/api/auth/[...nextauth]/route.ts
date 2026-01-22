@@ -1,9 +1,16 @@
 import NextAuth from "next-auth";
 import Credentials from "next-auth/providers/credentials";
-import { PrismaClient } from "../../../../generated/prisma-client/";
+import { PrismaClient } from "@prisma/client";
 import bcrypt from "bcrypt";
+import { PrismaPg } from "@prisma/adapter-pg";
 
-const prisma = new PrismaClient();
+const adapter = new PrismaPg({
+  connectionString: process.env.DATABASE_URL!,
+});
+
+const prisma = new PrismaClient({
+  adapter,
+});
 
 const handler = NextAuth({
   providers: [
@@ -22,7 +29,7 @@ const handler = NextAuth({
 
         const isValid = await bcrypt.compare(
           credentials!.password,
-          user.password
+          user.password,
         );
 
         if (!isValid) return null;

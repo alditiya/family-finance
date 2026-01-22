@@ -5,8 +5,9 @@
 // Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
 
 generator client {
-  provider = "prisma-client-js"
+  provider   = "prisma-client-js"
   //output   = "../generated/prisma-client"
+  engineType = "client"
 }
 
 datasource db {
@@ -58,6 +59,20 @@ model Transaction {
   household Household @relation(fields: [householdId], references: [id])
 
   createdAt DateTime @default(now())
+}
+
+model MonthlyLock {
+  id          String @id @default(cuid())
+  householdId String
+  month       Int
+  year        Int
+}
+
+model Invite {
+  id          String  @id @default(cuid())
+  email       String
+  householdId String
+  accepted    Boolean @default(false)
 }
 
 enum TransactionType {

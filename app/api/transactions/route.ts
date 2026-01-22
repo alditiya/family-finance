@@ -6,11 +6,21 @@ export async function POST(req: Request) {
   if (!session) return new Response("Unauthorized", { status: 401 });
 
   const body = await req.json();
-
   const user = await prisma.user.findUnique({
     where: { email: session.user?.email! },
     include: { members: true },
   });
+
+  const now = new Date();
+  const locked = await prisma.monthlyLock.findFirst({
+    where: {
+      householdId: user!.members[0].householdId,
+      month: now.getMonth() + 1,
+      year: now.getFullYear(),
+    },
+  });
+
+  if (locked) return new Response("Month locked", { status: 403 });
 
   await prisma.transaction.create({
     data: {
