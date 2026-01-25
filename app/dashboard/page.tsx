@@ -2,6 +2,8 @@ import { prisma } from "@/lib/prisma";
 import { getSession } from "@/lib/getSession";
 import Link from "next/link";
 import MonthlyChart from "@/components/MonthlyChart";
+import TrendChart from "@/components/TrendChart";
+import CategoryPie from "@/components/CategoryPie";
 
 export default async function Dashboard() {
   const session = await getSession();
@@ -31,26 +33,30 @@ export default async function Dashboard() {
 
   return (
     <div className="p-6 space-y-4">
-      <h1 className="text-2xl font-bold">Dashboard</h1>
+      <h1 className="text-2xl justify-center font-bold">Dashboard</h1>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div className="bg-gray-100 p-4 rounded">
+        <div className="bg-gray-500 p-4 rounded">
           <p>Pemasukan</p>
           <p className="text-xl font-bold">Rp {income}</p>
         </div>
 
-        <div className="bg-gray-100 p-4 rounded">
+        <div className="bg-gray-500 p-4 rounded">
           <p>Total Pengeluaran</p>
           <p className="text-xl font-bold">Rp {expense}</p>
         </div>
       </div>
 
       {/* CHART */}
-      <MonthlyChart />
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <MonthlyChart />
+        <TrendChart />
+        <CategoryPie />
+      </div>
 
       {/* ACTIONS */}
       <Link
         href="/dashboard/add"
-        className="inline-block bg-black text-white px-4 py-2 rounded"
+        className="inline-block bg-gray-700 text-white px-4 py-2 rounded"
       >
         + Tambah Transaksi
       </Link>

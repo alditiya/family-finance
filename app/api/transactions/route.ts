@@ -11,17 +11,6 @@ export async function POST(req: Request) {
     include: { members: true },
   });
 
-  const now = new Date();
-  const locked = await prisma.monthlyLock.findFirst({
-    where: {
-      householdId: user!.members[0].householdId,
-      month: now.getMonth() + 1,
-      year: now.getFullYear(),
-    },
-  });
-
-  if (locked) return new Response("Month locked", { status: 403 });
-
   await prisma.transaction.create({
     data: {
       type: body.type,
@@ -32,6 +21,17 @@ export async function POST(req: Request) {
       householdId: user!.members[0].householdId,
     },
   });
+
+  const now = new Date();
+  const locked = await prisma.monthlyLock.findFirst({
+    where: {
+      householdId: user!.members[0].householdId,
+      month: now.getMonth() + 1,
+      year: now.getFullYear(),
+    },
+  });
+
+  if (locked) return new Response("Month locked", { status: 403 });
 
   return Response.json({ ok: true });
 }

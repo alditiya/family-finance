@@ -1,0 +1,41 @@
+import { prisma } from "@/lib/prisma";
+import { getSession } from "@/lib/getSession";
+
+export async function GET(req: Request) {
+  const session = await getSession();
+  if (!session) return new Response("Unauthorized", { status: 401 });
+
+  const { searchParams } = new URL(req.url);
+  const year = Number(searchParams.get("year"));
+
+  const user = await prisma.user.findUnique({
+    where: { email: session.user?.email! },
+    include: { members: true },
+  });
+
+  const householdId = user!.members[0].householdId;
+
+  const result = [];
+
+  for (let m = 0; m < 12; m++) {
+    const start = new Date(year, m, 1);
+    const end = new Date(year, m + 1, 1);
+
+    const data = await prisma.transaction.groupBy({
+      by: ["type"],
+      where: {
+        householdId,
+        date: { gte: start, lt: end },
+      },
+      _sum: { amount: true },
+    });
+
+    result.push({
+      month: m + 1,
+      income: data.find((d) => d.type === "INCOME")?._sum.amount || 0,
+      expense: data.find((d) => d.type === "EXPENSE")?._sum.amount || 0,
+    });
+  }
+
+  return Response.json(result);
+}

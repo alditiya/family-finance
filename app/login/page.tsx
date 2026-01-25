@@ -8,7 +8,7 @@ export default function LoginPage() {
   const [password, setPassword] = useState("");
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100">
+    <div className="min-h-screen flex items-center justify-center bg-gray-500">
       <form
         onSubmit={async (e) => {
           e.preventDefault();
@@ -18,11 +18,9 @@ export default function LoginPage() {
             callbackUrl: "/dashboard",
           });
         }}
-        className="bg-white p-6 rounded w-80 space-y-4"
+        className="bg-gray-700 p-6 rounded w-80 space-y-4"
       >
-        <h1 className="text-xl font-bold text-center">
-          Keuangan Keluarga
-        </h1>
+        <h1 className="text-xl font-bold text-center">Keuangan Keluarga</h1>
 
         <input
           placeholder="Email"

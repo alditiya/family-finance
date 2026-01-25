@@ -1,16 +1,9 @@
 import { prisma } from "@/lib/prisma";
 import { getSession } from "@/lib/getSession";
 
-export async function GET(req: Request) {
+export async function GET() {
   const session = await getSession();
   if (!session) return new Response("Unauthorized", { status: 401 });
-
-  const { searchParams } = new URL(req.url);
-  const month = searchParams.get("month");
-  const year = searchParams.get("year");
-
-  const start = new Date(year, month - 1, 1);
-  const end = new Date(year, month, 1);
 
   const user = await prisma.user.findUnique({
     where: { email: session.user?.email! },
@@ -20,10 +13,15 @@ export async function GET(req: Request) {
   const householdId = user!.members[0].householdId;
 
   const data = await prisma.transaction.groupBy({
-    by: ["type"],
-    where: { householdId, date: { gte: start, lt: end } },
+    by: ["category"],
+    where: { householdId, type: "EXPENSE" },
     _sum: { amount: true },
   });
 
-  return Response.json(data);
+  return Response.json(
+    data.map((d) => ({
+      name: d.category,
+      value: d._sum.amount,
+    })),
+  );
 }
