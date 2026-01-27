@@ -1,4 +1,4 @@
-import { prisma } from "@/lib/prisma";
+import { prisma } from "@/lib/server/prisma";
 import { getSession } from "@/lib/getSession";
 
 export async function GET() {

@@ -1,7 +1,25 @@
+import "server-only";
 import { AuthOptions } from "next-auth";
 import Credentials from "next-auth/providers/credentials";
 import bcrypt from "bcrypt";
 import { prisma } from "./prisma";
+
+/**
+ * Ambil household aktif milik user yang sedang login
+ * Asumsi: 1 user = 1 household
+ */
+export async function getHouseholdId(userId: string) {
+  const membership = await prisma.householdMember.findFirst({
+    where: { userId },
+    select: { householdId: true },
+  });
+
+  if (!membership) {
+    throw new Error("User tidak tergabung dalam household mana pun");
+  }
+
+  return membership.householdId;
+}
 
 export const authOptions: AuthOptions = {
   providers: [
@@ -20,10 +38,7 @@ export const authOptions: AuthOptions = {
 
         if (!user) return null;
 
-        const valid = await bcrypt.compare(
-          credentials.password,
-          user.password
-        );
+        const valid = await bcrypt.compare(credentials.password, user.password);
 
         if (!valid) return null;
 

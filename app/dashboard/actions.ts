@@ -1,6 +1,6 @@
 "use server";
-
-import { prisma } from "@/lib/prisma";
+import { prisma } from "@/lib/server/prisma";
+import { createTransaction } from "@/lib/server/transaction.service";
 
 export async function addTransaction(data: {
   householdId: string;
@@ -12,6 +12,12 @@ export async function addTransaction(data: {
   await prisma.transaction.create({
     data,
   });
+}
+
+export async function addTransactionAction(
+  payload: Parameters<typeof createTransaction>[0],
+) {
+  await createTransaction(payload);
 }
 
 export async function lockCurrentMonth(

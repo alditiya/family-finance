@@ -1,4 +1,4 @@
-import { prisma } from "@/lib/prisma";
+import { prisma } from "@/lib/server/prisma";
 import { getSession } from "@/lib/getSession";
 import { React } from "react";
 import Link from "next/link";
@@ -7,7 +7,7 @@ import TrendChart from "@/components/TrendChart";
 import CategoryPie from "@/components/CategoryPie";
 import { toast } from "sonner";
 import TransactionItem from "./TransactionItem";
-import { isMonthLocked } from "@/lib/isMonthLocked";
+import { isMonthLocked } from "@/lib/server/isMonthLocked";
 import LockMonthButton from "./LockMonthButton";
 
 export default async function Dashboard() {
@@ -69,7 +69,8 @@ export default async function Dashboard() {
         <Link
           href="/dashboard/add"
           className="
-           bg-gray-900 text-white
+           bg-gray-900 
+           text-white    
              px-4 py-2
              rounded-lg
              text-sm
@@ -79,6 +80,21 @@ export default async function Dashboard() {
         >
           + Tambah Transaksi
         </Link>
+      </button>
+      <button
+        className="
+        bg-gray-900 
+        text-white
+          px-4 py-2
+          rounded-lg
+          text-sm
+        hover:bg-gray-800
+          hover:ring
+          transition"
+      >
+        <a href="/api/export/excel" className="underline">
+          Export Excel
+        </a>{" "}
       </button>
       {/* RECENT TRANSACTIONS */}
       <h2 className="px-2 py-2 text-lg font-semibold text-white-900">

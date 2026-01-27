@@ -1,10 +1,11 @@
+import "server-only";
 import { prisma } from "./prisma";
 
 export async function isMonthLocked(
   householdId: string,
   month: number,
   year: number,
-) {
+): promise<boolean> {
   const lock = await prisma.monthLock.findUnique({
     where: {
       householdId_month_year: {
@@ -15,5 +16,5 @@ export async function isMonthLocked(
     },
   });
 
-  return lock?.locked === true;
+  return Boolean(lock?.locked);
 }

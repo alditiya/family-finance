@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
-import { prisma } from "@/lib/prisma";
+import { prisma } from "@/lib/server/prisma";
+import { isMonthLocked } from "@/lib/server/isMonthLocked";
 
 export async function DELETE(
   req: Request,

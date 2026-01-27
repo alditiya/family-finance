@@ -1,3 +1,4 @@
+import "server-only";
 import { PrismaClient } from "@prisma/client";
 import { PrismaPg } from "@prisma/adapter-pg";
 
@@ -10,7 +11,7 @@ const adapter = new PrismaPg({
 });
 
 export const prisma =
-  globalForPrisma.prisma ??
+  globalForPrisma.prisma ||
   new PrismaClient({
     log: ["query", "info", "warn", "error"],
     adapter,
