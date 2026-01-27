@@ -33,6 +33,7 @@ model Household {
 
   members      HouseholdMember[]
   transactions Transaction[]
+  monthLocks   MonthLock[]
 }
 
 model HouseholdMember {
@@ -66,6 +67,18 @@ model MonthlyLock {
   householdId String
   month       Int
   year        Int
+}
+
+model MonthLock {
+  id          String  @id @default(cuid())
+  householdId String
+  month       Int
+  year        Int
+  locked      Boolean @default(true)
+
+  household Household @relation(fields: [householdId], references: [id])
+
+  @@unique([householdId, month, year])
 }
 
 model Invite {
