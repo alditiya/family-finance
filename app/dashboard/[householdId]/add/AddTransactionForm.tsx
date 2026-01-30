@@ -1,5 +1,5 @@
 "use client";
-import { addTransaction } from "../actions";
+import { addTransaction } from "../../actions";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { useState } from "react";

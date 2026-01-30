@@ -2,7 +2,7 @@ import "server-only";
 import { PrismaClient } from "@prisma/client";
 import { PrismaPg } from "@prisma/adapter-pg";
 
-const globalForPrisma = global as unknown as {
+const globalForPrisma = globalThis as unknown as {
   prisma: PrismaClient | undefined;
 };
 
@@ -11,7 +11,7 @@ const adapter = new PrismaPg({
 });
 
 export const prisma =
-  globalForPrisma.prisma ||
+  globalForPrisma.prisma ??
   new PrismaClient({
     log: ["query", "info", "warn", "error"],
     adapter,

@@ -20,10 +20,29 @@ model User {
   name      String
   email     String   @unique
   password  String
+  activityLogs ActivityLog[]
   createdAt DateTime @default(now())
-
   members      HouseholdMember[]
   transactions Transaction[]
+}
+
+model ActivityLog {
+  id        String   @id @default(cuid())
+  userId    String
+  action    ActivityAction
+  ipAddress String?
+  userAgent String?
+  createdAt DateTime @default(now())
+
+  user    User    @relation(fields: [userId], references: [id])
+
+  @@index([userId, createdAt])
+}
+
+enum ActivityAction {
+  LOGIN
+  LOGOUT
+  EXPIRED
 }
 
 model Household {
@@ -61,6 +80,10 @@ model Transaction {
 
   createdAt DateTime @default(now())
 }
+enum TransactionType {
+  INCOME
+  EXPENSE
+}
 
 model MonthlyLock {
   id          String @id @default(cuid())
@@ -88,7 +111,3 @@ model Invite {
   accepted    Boolean @default(false)
 }
 
-enum TransactionType {
-  INCOME
-  EXPENSE
-}

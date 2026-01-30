@@ -22,7 +22,7 @@ export default function TrendChart() {
 
   return (
     <div className="bg-white rounded p-4 shadow h-64">
-      <h2 className="font-semibold mb-2">Tren Tahunan</h2>
+      <h2 className="font-semibold text-gray-500 mb-2">Tren Tahunan</h2>
       <ResponsiveContainer>
         <LineChart data={data}>
           <XAxis dataKey="month" />

@@ -35,7 +35,7 @@ export default function MonthlyChart() {
         <select
           value={month}
           onChange={(e) => setMonth(Number(e.target.value))}
-          className="border p-2 rounded"
+          className="border p-2 rounded text-gray-500"
         >
           {Array.from({ length: 12 }).map((_, i) => (
             <option key={i} value={i + 1}>
@@ -47,7 +47,7 @@ export default function MonthlyChart() {
         <select
           value={year}
           onChange={(e) => setYear(Number(e.target.value))}
-          className="border p-2 rounded"
+          className="border p-2 rounded text-gray-500"
         >
           {[2024, 2025, 2026].map((y) => (
             <option key={y}>{y}</option>

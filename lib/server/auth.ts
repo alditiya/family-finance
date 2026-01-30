@@ -3,11 +3,15 @@ import { AuthOptions } from "next-auth";
 import Credentials from "next-auth/providers/credentials";
 import bcrypt from "bcrypt";
 import { prisma } from "./prisma";
+import { logActivity } from "@/lib/server/logActivity";
+import { ActivityAction } from '@prisma/client';
 
 /**
  * Ambil household aktif milik user yang sedang login
  * Asumsi: 1 user = 1 household
  */
+
+
 export async function getHouseholdId(userId: string) {
   const membership = await prisma.householdMember.findFirst({
     where: { userId },
@@ -42,10 +46,36 @@ export const authOptions: AuthOptions = {
 
         if (!valid) return null;
 
-        return { id: user.id, name: user.name, email: user.email };
+        return { 
+          id: user.id, 
+          name: user.name, 
+          email: user.email 
+        };
       },
     }),
   ],
-  session: { strategy: "jwt" },
-  pages: { signIn: "/login" },
+  
+callbacks: {
+  async signIn({ user, req }) {
+    await logActivity({
+      userId: user.id,
+      action: ActivityAction.LOGIN,
+      req,
+    });
+    return true;
+  },
+},
+  session: { 
+    strategy: "jwt",
+    maxAge: 60 * 60 * 4,
+    updateAge: 60 * 15, 
+   },
+
+   jwt: {
+    maxAge: 60 * 60 * 4,
+   },
+
+  pages: { 
+    signIn: "/login" 
+  },
 };

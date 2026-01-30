@@ -1,9 +1,15 @@
 import { getHouseholdId } from "@/lib/server/auth";
 import { isMonthLocked } from "@/lib/server/isMonthLocked";
 import AddTransactionForm from "./AddTransactionForm";
+import { requireHousehold } from "@/lib/server/household";
 
-export default async function Page() {
-  const householdId = await getHouseholdId();
+
+export default async function Page({  
+  params,
+}: {
+  params: Promise<{ householdId: string }>;
+}) {
+  const { householdId } = await params;
   const now = new Date();
 
   const locked = await isMonthLocked(
@@ -12,6 +18,7 @@ export default async function Page() {
     now.getFullYear(),
   );
 
+  //await requireHousehold(params.householdId);
   return (
     <div className="max-w-md mx-auto p-4">
       {locked && (

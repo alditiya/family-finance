@@ -3,38 +3,56 @@ import { getSession } from "@/lib/getSession";
 
 export async function GET(req: Request) {
   const session = await getSession();
-  if (!session) return new Response("Unauthorized", { status: 401 });
+  if (!session?.user?.email) {
+    return new Response("Unauthorized", { status: 401 });
+  }
 
   const { searchParams } = new URL(req.url);
   const year = Number(searchParams.get("year"));
 
+  if (!year || isNaN(year)) {
+    return new Response("Invalid year", { status: 400 });
+  }
+
   const user = await prisma.user.findUnique({
-    where: { email: session.user?.email! },
+    where: { email: session.user.email },
     include: { members: true },
   });
 
-  const householdId = user!.members[0].householdId;
+  if (!user || user.members.length === 0) {
+    return new Response("Household not found", { status: 404 });
+  }
 
-  const result = [];
+  const householdId = user.members[0].householdId;
 
-  for (let m = 0; m < 12; m++) {
-    const start = new Date(year, m, 1);
-    const end = new Date(year, m + 1, 1);
+  const startYear = new Date(year, 0, 1);
+  const endYear = new Date(year + 1, 0, 1);
 
-    const data = await prisma.transaction.groupBy({
-      by: ["type"],
-      where: {
-        householdId,
-        date: { gte: start, lt: end },
-      },
-      _sum: { amount: true },
-    });
+  const transactions = await prisma.transaction.findMany({
+    where: {
+      householdId,
+      date: { gte: startYear, lt: endYear },
+    },
+    select: {
+      date: true,
+      type: true,
+      amount: true,
+    },
+  });
 
-    result.push({
-      month: m + 1,
-      income: data.find((d) => d.type === "INCOME")?._sum.amount || 0,
-      expense: data.find((d) => d.type === "EXPENSE")?._sum.amount || 0,
-    });
+  const result = Array.from({ length: 12 }, (_, i) => ({
+    month: i + 1,
+    income: 0,
+    expense: 0,
+  }));
+
+  for (const t of transactions) {
+    const monthIndex = t.date.getMonth();
+    if (t.type === "INCOME") {
+      result[monthIndex].income += t.amount;
+    } else {
+      result[monthIndex].expense += t.amount;
+    }
   }
 
   return Response.json(result);

@@ -1,15 +1,19 @@
 import { prisma } from "@/lib/server/prisma";
 import { getSession } from "@/lib/getSession";
+import { requireHousehold } from "@/lib/server/household";
+import { requireSession } from "@/lib/server/requireSession";
+
 
 export async function POST(req: Request) {
-  const session = await getSession();
-  if (!session) return new Response("Unauthorized", { status: 401 });
-
+  const session = await requireSession();
   const body = await req.json();
   const user = await prisma.user.findUnique({
     where: { email: session.user?.email! },
     include: { members: true },
   });
+  const { householdId, amount, type, date, note } = body;
+  
+  await requireHousehold(householdId);
 
   await prisma.transaction.create({
     data: {
@@ -21,6 +25,8 @@ export async function POST(req: Request) {
       householdId: user!.members[0].householdId,
     },
   });
+
+
 
   const now = new Date();
   const locked = await prisma.monthlyLock.findFirst({
